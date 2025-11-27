@@ -30,7 +30,7 @@ const ENotEnoughBalance: u64 = 2;
 // ===== INITIALIZATION =====
 fun init(widness: NATOCHI, ctx: &mut TxContext) {
     // Create currency with metadata
-    let (currency, treasury_cap) = coin_registry::new_currency_with_otw(
+    let (builder, treasury_cap) = coin_registry::new_currency_with_otw(
         widness,
         9,
         b"NATOCHI".to_string(),
@@ -53,15 +53,61 @@ fun init(widness: NATOCHI, ctx: &mut TxContext) {
         paused: false, // Initially not paused
     };
 
+    //  let metadata = coin::create_currency_metadata(
+    //     9,
+    //     b"NATOCHI",
+    //     b"Natochi Token",
+    //     b"NATOCHI",
+    //     b"",
+    //     ctx
+    // );
+
     // Transfer ownership to module publisher
     // let sender = tx_context::sender(ctx);
-    let metadata = currency.finalize(ctx);
+    let metadata_cap = builder.finalize(ctx);
     let sender = ctx.sender();
     transfer::public_transfer(treasury_cap, sender);
-    transfer::public_transfer(metadata, sender);
+    transfer::public_transfer(metadata_cap, sender);
     transfer::public_transfer(total_supply, sender);
     transfer::public_transfer(transfer_pause, sender);
 }
+
+// #[allow(deprecated_usage)]
+// // [allow(deprecated_usage)]
+
+// fun init(widness: NATOCHI, ctx: &mut TxContext) {
+//     // Use standard Sui coin::create_currency instead of coin_registry
+
+//     let (treasury_cap, metadata) = coin::create_currency(
+//         widness,
+//         9,
+//         b"NATOCHI",
+//         b"Natochi Token",
+//         b"NATOCHI",
+//         b"hjj",
+//         ctx,
+//     );
+
+//     // Create your custom objects
+//     let total_supply = TotalSupply {
+//         id: object::new(ctx),
+//         max_supply: 1000000000000000,
+//         current_supply: 0,
+//     };
+
+//     let transfer_pause = TransferPause {
+//         id: object::new(ctx),
+//         paused: false,
+//     };
+
+//     let sender = ctx.sender();
+
+//     // Transfer ALL objects
+//     transfer::public_transfer(treasury_cap, sender);
+//     transfer::public_transfer(metadata, sender); // This transfers the actual CoinMetadata
+//     transfer::public_transfer(total_supply, sender);
+//     transfer::public_transfer(transfer_pause, sender);
+// }
 
 // ===== MINTING FUNCTIONS =====
 
@@ -137,12 +183,16 @@ public fun pause_transfers(transfer_pause: &mut TransferPause) {
 }
 
 /// Unpause transfers of this token
-public fun unpause_transfers(transfer_pause: &mut TransferPause) {
+public entry fun unpause_transfers(transfer_pause: &mut TransferPause) {
     transfer_pause.paused = false;
 }
 
 /// Safe transfer function that checks pause state
-public fun safe_transfer(transfer_pause: &TransferPause, coins: Coin<NATOCHI>, recipient: address) {
+public entry fun safe_transfer(
+    transfer_pause: &TransferPause,
+    coins: Coin<NATOCHI>,
+    recipient: address,
+) {
     assert!(!transfer_pause.paused, ETransfersPaused);
     transfer::public_transfer(coins, recipient);
 }

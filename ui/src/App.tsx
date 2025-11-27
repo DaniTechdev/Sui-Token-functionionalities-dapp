@@ -1,16 +1,18 @@
 import { ConnectButton, useCurrentAccount } from "@mysten/dapp-kit";
 import { isValidSuiObjectId } from "@mysten/sui/utils";
 import { Box, Button, Container, Flex, Heading } from "@radix-ui/themes";
+// import { TokenDashboard } from "../components/TokenDashboard";
+import { TokenDashboard } from "../src/components/TokenDashboard";
 import { useState } from "react";
-import { Greeting } from './Greeting';
-import { CreateGreeting } from "./CreateGreeting";
+// import { Greeting } from "./Greeting";
+// import { CreateGreeting } from "./CreateGreeting";
 
 function App() {
   const currentAccount = useCurrentAccount();
-  const [greetingId, setGreeting] = useState(() => {
-    const hash = window.location.hash.slice(1);
-    return isValidSuiObjectId(hash) ? hash : null;
-  });
+  // const [greetingId, setGreeting] = useState(() => {
+  //   const hash = window.location.hash.slice(1);
+  //   return isValidSuiObjectId(hash) ? hash : null;
+  // });
 
   return (
     <>
@@ -25,24 +27,27 @@ function App() {
         }}
       >
         <Box>
-          <Heading>dApp Starter Template</Heading>
+          <Heading>Sui Token Funstionalities Dapp</Heading>
         </Box>
 
         <Box style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          {currentAccount && (
+          {/* {currentAccount && (
             <Button
               variant="soft"
               onClick={() => {
-                window.open(`https://faucet.sui.io/?address=${currentAccount.address}`, '_blank');
+                window.open(
+                  `https://faucet.sui.io/?address=${currentAccount.address}`,
+                  "_blank",
+                );
               }}
             >
               Get Testnet SUI
             </Button>
-          )}
+          )} */}
           <ConnectButton />
         </Box>
       </Flex>
-      <Container>
+      {/* <Container>
         <Container
           mt="5"
           pt="2"
@@ -64,7 +69,9 @@ function App() {
             <Heading>Please connect your wallet</Heading>
           )}
         </Container>
-      </Container>
+      </Container> */}
+
+      <TokenDashboard />
     </>
   );
 }
